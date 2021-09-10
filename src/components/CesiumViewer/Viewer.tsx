@@ -1,9 +1,7 @@
-import React,{ FC, useEffect } from "react";
+import React,{ useEffect } from "react";
 import { ViewerProps } from "./interface";
-import * as Cesium from "cesium"
+import Core from "../../Core"
 import "cesium/Source/Widgets/widgets.css"
-
-
 
 const Viewer = ({
     onViewerMounted,
@@ -12,7 +10,7 @@ const Viewer = ({
 {
     useEffect(() => {
         (window as any).CESIUM_BASE_URL = window.location.origin
-        const viewer = new Cesium.Viewer("cesium-viewer-container", {
+        const options = {
             animation: widgetOption?.clock ? true : false,
             timeline: widgetOption?.timeline ? true : false,
             fullscreenButton: widgetOption?.fullscreen ? true : false,
@@ -23,9 +21,10 @@ const Viewer = ({
             baseLayerPicker: widgetOption?.toolbar ? true : false,
             homeButton: widgetOption?.toolbar ? true : false,
 
-        })
-        const s = (viewer.scene as any)
-        s._creditContainer.style.display = "none"
+        }
+        const viewer = Core.createViewer( "cesium-viewer-container", options );
+
+        (viewer.scene as any)._creditContainer.style.display = "none"
         if (onViewerMounted) { onViewerMounted(viewer) }
 
         (window as any).viewer = viewer

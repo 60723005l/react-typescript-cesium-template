@@ -11,6 +11,8 @@ export interface ISideToolbarActionPayload {
 export interface ISideToolbarItem {
     name: barItemName;
     icon: OverridableComponent<SvgIconTypeMap>;
+    children: React.ElementType,
+    props: any,
     action: ( arg: ISideToolbarActionPayload ) => void;
 }
 
