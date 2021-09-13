@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { RouteComponentProps } from "react-router-dom";
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { SideToolbar, Header, Content, TabPanel } from '../components/Home';
-import { SideToolbarProvider } from '../components/Home/src'; 
+import { SideToolbar, Header, Content } from '../components/Home';
+import { SideToolbarProvider } from '../components/Home/src';
 
-const drawerWidth = 240;
+
+
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -19,8 +20,11 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
+
+
 const Home = (props: RouteComponentProps<any>) => {
   const classes = useStyles();
+
   return (
     <SideToolbarProvider>
       <div className={classes.root}>
@@ -30,11 +34,11 @@ const Home = (props: RouteComponentProps<any>) => {
           <SideToolbar />
           {/* <TabPanel/> */}
         </div>
-        
+
         <Content />
       </div>
     </SideToolbarProvider>
-    
+
   );
 }
 

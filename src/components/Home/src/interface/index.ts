@@ -1,5 +1,6 @@
 import { SvgIconTypeMap } from "@material-ui/core";
 import { OverridableComponent } from "@material-ui/core/OverridableComponent";
+import { ILayer } from "../../../../Core/LayerController/Layer";
 
 export type barItemName =  "layer" | "about"
 
@@ -21,4 +22,7 @@ export interface ISideToolbarContext {
     list: Array<ISideToolbarItem>;
     activeItem: ISideToolbarItem;
     setActiveItem: ( name: barItemName ) => void
+    layerList: Array<ILayer>
+    setLayerList: ( value: Array<ILayer> ) => void
+
 }

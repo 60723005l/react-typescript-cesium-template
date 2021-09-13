@@ -5,7 +5,12 @@ import green from '@material-ui/core/colors/green';
 const light = createTheme({
   palette: {
     type: "light",
-  }
+  },
+  // mixins: {
+  //   toolbar: {
+  //     // height: 65
+  //   }
+  // }
 });
 
 export default light

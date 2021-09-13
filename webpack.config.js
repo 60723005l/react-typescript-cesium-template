@@ -5,7 +5,7 @@ import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 
 
-const webpackConfig = (): Configuration => ({
+const webpackConfig = () => ({
   entry: "./src/index.tsx",
   ...(process.env.production || !process.env.development
     ? {}
@@ -18,6 +18,7 @@ const webpackConfig = (): Configuration => ({
   output: {
     path: path.join(__dirname, "/build"),
     filename: "build.js",
+    publicPath: '/webgis/3Dmap/',
   },
   module: {
     rules: [
@@ -36,7 +37,7 @@ const webpackConfig = (): Configuration => ({
     ],
   },
   devServer: {
-    port: 3000,
+    port: 3001,
     open: true,
     historyApiFallback: true,
   },

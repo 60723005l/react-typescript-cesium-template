@@ -9,7 +9,9 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     content: {
       flexGrow: 1,
-      height: "100vh",
+      position: "relative",
+      top: "64px",
+      height: "calc(100vh - 64px)",
       width: "100vw",
     },
     mapcontent: {

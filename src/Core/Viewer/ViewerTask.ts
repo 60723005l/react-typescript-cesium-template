@@ -1,6 +1,6 @@
 import { Viewer, Event } from "cesium"
 
-type callbackType = () => void
+type callbackType = ( viewer: Viewer) => void
 
 class ViewerTask {
     viewer: Viewer | null
@@ -26,7 +26,7 @@ class ViewerTask {
         this.removeAllEvents()
         return viewer
     }
-    public execute( callback: () => void ) {
+    public execute( callback: ( viewer: Viewer) => void ) {
         this.event.addEventListener( callback )
         this._taskStack.push(callback)
         if ( this.isViewerSettled() ) {

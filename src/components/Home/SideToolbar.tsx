@@ -1,15 +1,17 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import Toolbar from '@material-ui/core/Toolbar';
 import clsx from 'clsx';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { SideToolbarListContext } from './src';
 import { ISideToolbarItem } from './src/interface';
-
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import FirstPageIcon from '@material-ui/icons/FirstPage';
+import { Divider, IconButton, Tab, Tabs, Toolbar } from '@material-ui/core';
 import { TabPanel } from '.';
+import Layer from "../../Core/LayerController/Layer"
+import * as api from "../../api"
+import Core from '../../Core';
+import { Viewer } from 'cesium';
 
-const SIDEBAR_WIDTH = 65
+const SIDEBAR_WIDTH = 50
 const PANEL_WIDTH = 250
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -20,7 +22,9 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       height: "100vh",
       flexDirection: "row",
-      width: SIDEBAR_WIDTH,
+      width: 0,//SIDEBAR_WIDTH,
+      position: "absolute",
+      zIndex: 1
     },
     tabGroup: {
 
@@ -30,7 +34,9 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: "column"
     },
     tabs: {
-      borderRight: `1px solid ${theme.palette.divider}`,
+      // borderRight: `1px solid ${theme.palette.divider}`,
+      background: theme.palette.background.default,
+      borderRadius: 5,
     },
     tab: {
       minWidth: SIDEBAR_WIDTH
@@ -39,8 +45,17 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       flexDirection: "column",
       zIndex: 1,
-      background: "#ffffffc4"
+      background: theme.palette.background.default,
+      // overflow: "auto",
+      height: "100%"
     },
+    // contentHeader: {
+    //   // position: "sticky",
+    //   // top: theme.mixins.toolbar.height,
+    //   // left: 0,
+    //   zIndex: 2,
+    //   background: theme.palette.background.default
+    // },
     panelOpen: {
       minWidth: PANEL_WIDTH,
       width: PANEL_WIDTH,
@@ -69,6 +84,7 @@ const a11yProps = (index: any) => {
   return {
     id: `vertical-tab-${index}`,
     'aria-controls': `vertical-tabpanel-${index}`,
+    variant: "contained"
   };
 }
 
@@ -76,14 +92,44 @@ const a11yProps = (index: any) => {
 const SideToolbar = () => {
   const classes = useStyles();
   const root_ref = useRef<HTMLDivElement>(null)
-  const { activeItem, setActiveItem, list } = useContext(SideToolbarListContext)
+
+  const { activeItem, setActiveItem, list, setLayerList } = useContext(SideToolbarListContext)
+
   const [value, setValue] = useState(0)
   const [open, setopen] = useState(false)
 
-  const handleClickOutside = (event: MouseEvent) => {
-    if (!root_ref.current?.contains((event.target) as Node)) {
-      setopen(false)
+  useEffect(() => {
+    const fetchBuildings = async () => {
+      const resp = await api.buildings.getServiceList()
+      const buildings = resp.data.LAYERS.BUILDING
+
+      const layers: Array<Layer> = buildings.map((item: any) => {
+        return new Layer({
+          name: item.Name,
+          type: "3DTILE",
+          group: "3DTILE",
+          data: { url: item.Url }
+        })
+      })
+      const layerInfoList = layers.map( layer => layer.info)
+      Core.viewerTask.execute( (viewer: Viewer) => {
+        layers.forEach( layer => {
+          Core.layerController.add(layer)
+        })
+      })
+      
+      setLayerList( layerInfoList )
+
     }
+
+    fetchBuildings()
+  }, [])
+
+  const handleClickOutside = (event: MouseEvent) => {
+    // if (!root_ref.current?.contains((event.target) as Node)) {
+    //   setopen(false)
+    // }
+    ""
   }
 
   useEffect(() => {
@@ -96,9 +142,7 @@ const SideToolbar = () => {
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue);
   }
-  const handleItemClick = (item: ISideToolbarItem) => {
-    console.log(root_ref)
-
+  const handleTabClick = (item: ISideToolbarItem) => {
     setActiveItem(item.name)
     if (open && item.name === activeItem.name) {
       setopen(false)
@@ -108,13 +152,36 @@ const SideToolbar = () => {
     }
   };
 
+  const handlePanelHide = () =>
+  {
+    setopen(false)
+  }
+
   return (
     <div className={classes.root} ref={root_ref}>
+      <div className={clsx(classes.panelContainer, {
+        [classes.panelOpen]: open,
+        [classes.panelClose]: !open,
+      })}>
+        <Toolbar className="tSpace" />
+        {/* <div className={classes.contentHeader}>
+            <IconButton color="primary" onClick={handlePanelHide}><FirstPageIcon /></IconButton>
+            <Divider/>
+        </div> */}
+        
+        {list.map((item, index) => (
+          <TabPanel key={index} value={value} index={index} onPanelHide={handlePanelHide}>
+            {<item.children {...item.props} />}
+          </TabPanel>
+        ))}
+      </div>
+      
       <div className={classes.tabsContainer}>
         <Toolbar className="tSpace" />
         <Tabs
           orientation="vertical"
-          variant="scrollable"
+          // variant="scrollable"
+          indicatorColor="primary"
           value={value}
           onChange={handleChange}
           aria-label="Vertical tabs example"
@@ -124,21 +191,11 @@ const SideToolbar = () => {
           {list.map((item, index) => (
             <Tab className={classes.tab} icon={<item.icon />}
               {...a11yProps(index)} key={index}
-              onClick={() => handleItemClick(item)} />
+              onClick={() => handleTabClick(item)} />
           ))}
         </Tabs>
       </div>
-      <div className={clsx(classes.panelContainer, {
-        [classes.panelOpen]: open,
-        [classes.panelClose]: !open,
-      })}>
-        <Toolbar className="tSpace" />
-        {list.map((item, index) => (
-          <TabPanel key={index} value={value} index={index} >
-            {<item.children {...item.props} />}
-          </TabPanel>
-        ))}
-      </div>
+      
 
 
     </div>

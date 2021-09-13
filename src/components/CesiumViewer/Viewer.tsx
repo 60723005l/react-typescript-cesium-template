@@ -9,7 +9,8 @@ const Viewer = ({
 }:ViewerProps) =>
 {
     useEffect(() => {
-        (window as any).CESIUM_BASE_URL = window.location.origin
+        console.log(process.env);
+        (window as any).CESIUM_BASE_URL = window.location.origin + process.env.PUBLIC_URL
         const options = {
             animation: widgetOption?.clock ? true : false,
             timeline: widgetOption?.timeline ? true : false,
